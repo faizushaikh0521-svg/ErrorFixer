@@ -12,10 +12,10 @@
                     Crew Member Profile
                 </h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('export_crew_csv', crew_id=crew_member.id) }}" 
+                    <a href="{{ url_for('export_crew') }}" 
                        class="btn btn-outline-success">
                         <i class="fas fa-download me-2"></i>
-                        Export CSV
+                        Export All CSV
                     </a>
                     <a href="{{ url_for('crew_list') }}" class="btn btn-outline-navy">
                         <i class="fas fa-arrow-left me-2"></i>
@@ -112,11 +112,10 @@
                             </div>
                             <small class="text-muted">Share this link with the crew member for document uploads</small>
                         {% else %}
-                            <a href="{{ url_for('generate_profile_link', crew_id=crew_member.id) }}" 
-                               class="btn btn-gold btn-sm">
-                                <i class="fas fa-plus me-2"></i>
-                                Generate Profile Link
-                            </a>
+                            <span class="btn btn-gold btn-sm disabled">
+                                <i class="fas fa-link-slash me-2"></i>
+                                No Profile Link
+                            </span>
                         {% endif %}
                     </div>
                 </div>
