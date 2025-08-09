@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}{{ staff_member.full_name }} - Staff Profile - Admin - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-navy mb-0">
+                    <i class="fas fa-user-tie me-3"></i>
+                    Staff Member Profile
+                </h2>
+                <a href="{{ url_for('staff_list') }}" class="btn btn-outline-navy">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Profile Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top">
+                <div class="card-header bg-sea-green text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card me-2"></i>
+                        Profile Summary
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="profile-avatar bg-sea-green text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-user-tie fa-2x"></i>
+                    </div>
+                    <h4 class="mb-1">{{ staff_member.full_name }}</h4>
+                    <p class="text-muted mb-2">{{ staff_member.position_applying }}</p>
+                    <span class="badge bg-{{ staff_member.get_status_class() }} fs-6 px-3 py-2 mb-3">
+                        {{ staff_member.get_status_name() }}
+                    </span>
+                    
+                    <hr>
+                    
+                    <!-- Status Update Form -->
+                    <form method="POST" action="{{ url_for('update_staff_status', staff_id=staff_member.id) }}">
+                        <div class="mb-3">
+                            <label for="notes" class="form-label fw-bold">Admin Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Add notes about this staff member...">{{ staff_member.admin_notes or '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="action" value="approve" 
+                                    class="btn btn-success" 
+                                    {{ 'disabled' if staff_member.status == 3 }}>
+                                <i class="fas fa-check me-2"></i>
+                                {{ 'Approved' if staff_member.status == 3 else 'Approve' }}
+                            </button>
+                            <button type="submit" name="action" value="reject" 
+                                    class="btn btn-danger"
+                                    {{ 'disabled' if staff_member.status == -1 }}>
+                                <i class="fas fa-times me-2"></i>
+                                {{ 'Rejected' if staff_member.status == -1 else 'Reject' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Information -->
+        <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-navy text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Full Name</label>
+                            <div class="fw-bold">{{ staff_member.full_name }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Email or WhatsApp</label>
+                            <div class="fw-bold">
+                                <a href="mailto:{{ staff_member.email_or_whatsapp }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    {{ staff_member.email_or_whatsapp }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Mobile Number</label>
+                            <div class="fw-bold">
+                                <a href="tel:{{ staff_member.mobile_number }}" class="text-decoration-none">
+                                    <i class="fas fa-phone me-1"></i>
+                                    {{ staff_member.mobile_number }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Current Location</label>
+                            <div class="fw-bold">{{ staff_member.location }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Professional Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-sea-green text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-briefcase me-2"></i>
+                        Professional Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Position Applying For</label>
+                            <div class="fw-bold">{{ staff_member.position_applying }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Department</label>
+                            <div class="fw-bold">
+                                <span class="badge bg-info">{{ staff_member.department }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Years of Experience</label>
+                            <div class="fw-bold">
+                                <span class="badge bg-warning text-dark">{{ staff_member.years_experience }} years</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Availability Date</label>
+                            <div class="fw-bold">{{ staff_member.availability_date.strftime('%B %d, %Y') }}</div>
+                        </div>
+                        {% if staff_member.current_employer %}
+                        <div class="col-md-12">
+                            <label class="text-muted small">Current Employer</label>
+                            <div class="fw-bold">{{ staff_member.current_employer }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information -->
+            {% if staff_member.education or staff_member.certifications or staff_member.salary_expectation %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-gold text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Additional Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% if staff_member.education %}
+                        <div class="col-md-6">
+                            <label class="text-muted small">Education</label>
+                            <div class="fw-bold">{{ staff_member.education }}</div>
+                        </div>
+                        {% endif %}
+                        {% if staff_member.salary_expectation %}
+                        <div class="col-md-6">
+                            <label class="text-muted small">Salary Expectation</label>
+                            <div class="fw-bold">{{ staff_member.salary_expectation }}</div>
+                        </div>
+                        {% endif %}
+                        {% if staff_member.certifications %}
+                        <div class="col-12">
+                            <label class="text-muted small">Certifications</label>
+                            <div class="fw-bold">
+                                <div class="bg-light p-3 rounded">
+                                    {{ staff_member.certifications|replace('\n', '<br>')|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Documents -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Uploaded Documents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% if staff_member.resume_file %}
+                        <div class="col-md-6">
+                            <div class="document-item border rounded p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Resume/CV</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-file-alt me-1"></i>
+                                            {{ staff_member.resume_file.split('/')[-1] }}
+                                        </small>
+                                    </div>
+                                    <a href="{{ url_for('uploaded_file', filename=staff_member.resume_file) }}" 
+                                       class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if staff_member.photo_file %}
+                        <div class="col-md-6">
+                            <div class="document-item border rounded p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Photo</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-image me-1"></i>
+                                            {{ staff_member.photo_file.split('/')[-1] }}
+                                        </small>
+                                    </div>
+                                    <a href="{{ url_for('uploaded_file', filename=staff_member.photo_file) }}" 
+                                       class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not staff_member.resume_file and not staff_member.photo_file %}
+                        <div class="col-12 text-center py-3">
+                            <i class="fas fa-file text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">No documents uploaded</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Application Timeline -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-timeline me-2"></i>
+                        Application Timeline
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Application Submitted</h6>
+                                <small class="text-muted">{{ staff_member.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                <p class="mb-0 mt-1">Staff application created and submitted for review.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info">
+                                <i class="fas fa-clock text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Last Updated</h6>
+                                <small class="text-muted">{{ staff_member.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                <p class="mb-0 mt-1">Most recent profile or status update.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content {
+    padding-left: 20px;
+}
+
+.sticky-top {
+    top: 100px;
+}
+
+.document-item {
+    transition: all 0.2s ease;
+}
+
+.document-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

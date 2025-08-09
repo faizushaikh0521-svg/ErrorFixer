@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Track Application Status - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gold text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-search me-3"></i>
+                        Track Application Status
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-75">Enter your passport number to check your application status</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="mb-4">
+                                    <label for="{{ form.passport.id }}" class="form-label fw-bold">
+                                        <i class="fas fa-passport me-2"></i>
+                                        {{ form.passport.label.text }}
+                                    </label>
+                                    {{ form.passport(class="form-control form-control-lg" + (" is-invalid" if form.passport.errors else ""), placeholder="Enter your passport number") }}
+                                    {% if form.passport.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.passport.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="d-grid">
+                                    {{ form.submit(class="btn btn-gold btn-lg") }}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if crew_member %}
+                    <hr class="my-5">
+                    
+                    <!-- Application Status Display -->
+                    <div class="status-display">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-center justify-content-between mb-4">
+                                            <h4 class="text-navy mb-0">
+                                                <i class="fas fa-user me-2"></i>
+                                                {{ crew_member.name }}
+                                            </h4>
+                                            <span class="badge bg-{{ crew_member.get_status_class() }} fs-6 px-3 py-2">
+                                                <i class="fas fa-circle me-1"></i>
+                                                {{ crew_member.get_status_name() }}
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <label class="text-muted small">Rank/Position</label>
+                                                    <div class="fw-bold">{{ crew_member.rank }}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <label class="text-muted small">Passport Number</label>
+                                                    <div class="fw-bold">{{ crew_member.passport }}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <label class="text-muted small">Nationality</label>
+                                                    <div class="fw-bold">{{ crew_member.nationality }}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <label class="text-muted small">Experience</label>
+                                                    <div class="fw-bold">{{ crew_member.years_experience }} years</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <label class="text-muted small">Registration Date</label>
+                                                    <div class="fw-bold">{{ crew_member.created_at.strftime('%B %d, %Y') }}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <label class="text-muted small">Last Updated</label>
+                                                    <div class="fw-bold">{{ crew_member.updated_at.strftime('%B %d, %Y') }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if crew_member.admin_notes %}
+                                        <div class="mt-4">
+                                            <label class="text-muted small">Notes from Admin</label>
+                                            <div class="alert alert-info mt-2">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                {{ crew_member.admin_notes }}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Timeline -->
+                    <div class="mt-5">
+                        <h5 class="text-navy mb-4">
+                            <i class="fas fa-timeline me-2"></i>
+                            Application Timeline
+                        </h5>
+                        
+                        <div class="timeline">
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker bg-success">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Application Submitted</h6>
+                                    <small class="text-muted">{{ crew_member.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                    <p class="mb-0 mt-1">Your application has been successfully submitted to our system.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {{ 'completed' if crew_member.status >= 1 else 'pending' }}">
+                                <div class="timeline-marker bg-{{ 'warning' if crew_member.status >= 1 else 'secondary' }}">
+                                    <i class="fas fa-{{ 'search' if crew_member.status >= 1 else 'clock' }} text-white"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Initial Screening</h6>
+                                    <p class="mb-0 mt-1">
+                                        {% if crew_member.status >= 1 %}
+                                            Your application is currently under review by our recruitment team.
+                                        {% else %}
+                                            Waiting for initial screening to begin.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {{ 'completed' if crew_member.status >= 2 else 'pending' }}">
+                                <div class="timeline-marker bg-{{ 'info' if crew_member.status >= 2 else 'secondary' }}">
+                                    <i class="fas fa-{{ 'file-check' if crew_member.status >= 2 else 'clock' }} text-white"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Document Verification</h6>
+                                    <p class="mb-0 mt-1">
+                                        {% if crew_member.status >= 2 %}
+                                            Your documents have been verified and approved.
+                                        {% else %}
+                                            Document verification will begin after initial screening.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {{ 'completed' if crew_member.status == 3 else 'rejected' if crew_member.status < 0 else 'pending' }}">
+                                <div class="timeline-marker bg-{{ 'success' if crew_member.status == 3 else 'danger' if crew_member.status < 0 else 'secondary' }}">
+                                    <i class="fas fa-{{ 'check-circle' if crew_member.status == 3 else 'times-circle' if crew_member.status < 0 else 'clock' }} text-white"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Final Decision</h6>
+                                    <p class="mb-0 mt-1">
+                                        {% if crew_member.status == 3 %}
+                                            Congratulations! Your application has been approved. We will contact you soon with job opportunities.
+                                        {% elif crew_member.status == -1 %}
+                                            Your application was not successful at this time. Please feel free to apply again in the future.
+                                        {% elif crew_member.status == -2 %}
+                                            Your application requires additional review. Our team will contact you soon.
+                                        {% else %}
+                                            Final decision pending completion of previous steps.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content {
+    padding-left: 20px;
+}
+
+.timeline-item.completed .timeline-marker {
+    background-color: var(--bs-success) !important;
+}
+
+.timeline-item.pending .timeline-marker {
+    background-color: var(--bs-secondary) !important;
+}
+
+.timeline-item.rejected .timeline-marker {
+    background-color: var(--bs-danger) !important;
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Crew Members - Admin - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-navy mb-0">
+                    <i class="fas fa-ship me-3"></i>
+                    Crew Members
+                </h2>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-navy">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label fw-bold">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search }}" placeholder="Name, passport, or rank...">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="status" class="form-label fw-bold">Status Filter</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                <option value="0" {{ 'selected' if status_filter == '0' }}>Registered</option>
+                                <option value="1" {{ 'selected' if status_filter == '1' }}>Screening</option>
+                                <option value="2" {{ 'selected' if status_filter == '2' }}>Documents Verified</option>
+                                <option value="3" {{ 'selected' if status_filter == '3' }}>Approved</option>
+                                <option value="-1" {{ 'selected' if status_filter == '-1' }}>Rejected</option>
+                                <option value="-2" {{ 'selected' if status_filter == '-2' }}>Flagged</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-navy me-2">
+                                <i class="fas fa-search me-1"></i>
+                                Search
+                            </button>
+                            <a href="{{ url_for('crew_list') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Clear
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-2 text-end">
+                            <span class="badge bg-info fs-6">
+                                {{ crew_members|length }} member{{ 's' if crew_members|length != 1 else '' }}
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Crew Members List -->
+    <div class="row">
+        <div class="col-12">
+            {% if crew_members %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-navy text-white">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Rank</th>
+                                        <th>Passport</th>
+                                        <th>Nationality</th>
+                                        <th>Experience</th>
+                                        <th>Status</th>
+                                        <th>Registered</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for crew in crew_members %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-navy text-white me-3">
+                                                    {{ crew.name[0].upper() }}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">{{ crew.name }}</h6>
+                                                    <small class="text-muted">{{ crew.email }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">{{ crew.rank }}</span>
+                                        </td>
+                                        <td>
+                                            <code class="bg-light text-dark px-2 py-1 rounded">{{ crew.passport }}</code>
+                                        </td>
+                                        <td>{{ crew.nationality }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ crew.years_experience }} years</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ crew.get_status_class() }}">
+                                                {{ crew.get_status_name() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ crew.created_at.strftime('%b %d, %Y') }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('crew_profile', crew_id=crew.id) }}" 
+                                                   class="btn btn-outline-navy" title="View Profile">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ url_for('export_crew_csv', crew_id=crew.id) }}" 
+                                                   class="btn btn-outline-success" title="Export CSV">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                                {% if crew.profile_token %}
+                                                <button class="btn btn-outline-gold copy-link-btn" 
+                                                        title="Copy Profile Link"
+                                                        data-link="{{ url_for('crew_private_profile', crew_id=crew.id, token=crew.profile_token, _external=True) }}">
+                                                    <i class="fas fa-link"></i>
+                                                </button>
+                                                {% else %}
+                                                <a href="{{ url_for('generate_profile_link', crew_id=crew.id) }}" 
+                                                   class="btn btn-outline-gold" title="Generate Profile Link">
+                                                    <i class="fas fa-plus"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-ship text-muted fa-4x mb-4"></i>
+                        <h4 class="text-muted mb-3">No Crew Members Found</h4>
+                        {% if search or status_filter %}
+                            <p class="text-muted mb-4">Try adjusting your search criteria or filters.</p>
+                            <a href="{{ url_for('crew_list') }}" class="btn btn-navy">
+                                <i class="fas fa-refresh me-2"></i>
+                                Clear Filters
+                            </a>
+                        {% else %}
+                            <p class="text-muted mb-4">No crew members have registered yet.</p>
+                            <a href="{{ url_for('register_crew') }}" class="btn btn-navy">
+                                <i class="fas fa-plus me-2"></i>
+                                Add First Crew Member
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.table th {
+    border: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: #dee2e6;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Copy link functionality
+document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const link = this.dataset.link;
+        navigator.clipboard.writeText(link).then(function() {
+            // Show temporary success feedback
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-outline-gold');
+            
+            setTimeout(function() {
+                btn.innerHTML = originalIcon;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-gold');
+            }, 2000);
+        });
+    });
+});
+</script>
+{% endblock %}

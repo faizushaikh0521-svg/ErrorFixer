@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Members - Admin - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-navy mb-0">
+                    <i class="fas fa-briefcase me-3"></i>
+                    Staff Members
+                </h2>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-navy">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label fw-bold">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search }}" placeholder="Name, position, or department...">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="status" class="form-label fw-bold">Status Filter</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                <option value="1" {{ 'selected' if status_filter == '1' }}>Screening</option>
+                                <option value="3" {{ 'selected' if status_filter == '3' }}>Approved</option>
+                                <option value="-1" {{ 'selected' if status_filter == '-1' }}>Rejected</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-sea-green me-2">
+                                <i class="fas fa-search me-1"></i>
+                                Search
+                            </button>
+                            <a href="{{ url_for('staff_list') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Clear
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-2 text-end">
+                            <span class="badge bg-info fs-6">
+                                {{ staff_members|length }} member{{ 's' if staff_members|length != 1 else '' }}
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Staff Members List -->
+    <div class="row">
+        <div class="col-12">
+            {% if staff_members %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-sea-green text-white">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Position</th>
+                                        <th>Department</th>
+                                        <th>Location</th>
+                                        <th>Experience</th>
+                                        <th>Status</th>
+                                        <th>Registered</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for staff in staff_members %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-sea-green text-white me-3">
+                                                    {{ staff.full_name[0].upper() }}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">{{ staff.full_name }}</h6>
+                                                    <small class="text-muted">{{ staff.email_or_whatsapp }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">{{ staff.position_applying }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ staff.department }}</span>
+                                        </td>
+                                        <td>{{ staff.location }}</td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">{{ staff.years_experience }} years</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ staff.get_status_class() }}">
+                                                {{ staff.get_status_name() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ staff.created_at.strftime('%b %d, %Y') }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('staff_profile', staff_id=staff.id) }}" 
+                                                   class="btn btn-outline-sea-green" title="View Profile">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-briefcase text-muted fa-4x mb-4"></i>
+                        <h4 class="text-muted mb-3">No Staff Members Found</h4>
+                        {% if search or status_filter %}
+                            <p class="text-muted mb-4">Try adjusting your search criteria or filters.</p>
+                            <a href="{{ url_for('staff_list') }}" class="btn btn-sea-green">
+                                <i class="fas fa-refresh me-2"></i>
+                                Clear Filters
+                            </a>
+                        {% else %}
+                            <p class="text-muted mb-4">No staff members have registered yet.</p>
+                            <a href="{{ url_for('register_staff') }}" class="btn btn-sea-green">
+                                <i class="fas fa-plus me-2"></i>
+                                Add First Staff Member
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.table th {
+    border: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: #dee2e6;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+</style>
+{% endblock %}

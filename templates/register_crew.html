@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Crew Registration - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-navy text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-ship me-3"></i>
+                        Crew Member Registration
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-75">Join our maritime crew network</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" id="crewRegistrationForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Personal Information Section -->
+                        <div class="section-header mb-4">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-user me-2"></i>
+                                Personal Information
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id }}" class="form-label fw-bold">
+                                    {{ form.name.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.nationality.id }}" class="form-label fw-bold">
+                                    {{ form.nationality.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.nationality(class="form-control" + (" is-invalid" if form.nationality.errors else "")) }}
+                                {% if form.nationality.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.nationality.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="{{ form.date_of_birth.id }}" class="form-label fw-bold">
+                                    {{ form.date_of_birth.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.date_of_birth(class="form-control" + (" is-invalid" if form.date_of_birth.errors else "")) }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date_of_birth.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.mobile_number.id }}" class="form-label fw-bold">
+                                    {{ form.mobile_number.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.mobile_number(class="form-control" + (" is-invalid" if form.mobile_number.errors else "")) }}
+                                {% if form.mobile_number.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.mobile_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.email.id }}" class="form-label fw-bold">
+                                    {{ form.email.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Professional Information Section -->
+                        <div class="section-header mb-4 mt-5">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-briefcase me-2"></i>
+                                Professional Information
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.rank.id }}" class="form-label fw-bold">
+                                    {{ form.rank.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.rank(class="form-select" + (" is-invalid" if form.rank.errors else "")) }}
+                                {% if form.rank.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.rank.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.passport.id }}" class="form-label fw-bold">
+                                    {{ form.passport.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passport(class="form-control" + (" is-invalid" if form.passport.errors else "")) }}
+                                {% if form.passport.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.passport.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="{{ form.years_experience.id }}" class="form-label fw-bold">
+                                    {{ form.years_experience.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.years_experience(class="form-control" + (" is-invalid" if form.years_experience.errors else "")) }}
+                                {% if form.years_experience.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.years_experience.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.availability_date.id }}" class="form-label fw-bold">
+                                    {{ form.availability_date.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.availability_date(class="form-control" + (" is-invalid" if form.availability_date.errors else "")) }}
+                                {% if form.availability_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.availability_date.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.last_vessel_type.id }}" class="form-label fw-bold">
+                                    {{ form.last_vessel_type.label.text }}
+                                </label>
+                                {{ form.last_vessel_type(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.available_port_city.id }}" class="form-label fw-bold">
+                                {{ form.available_port_city.label.text }}
+                            </label>
+                            {{ form.available_port_city(class="form-control") }}
+                        </div>
+                        
+                        <!-- Emergency Contact Section -->
+                        <div class="section-header mb-4 mt-5">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-phone me-2"></i>
+                                Emergency Contact
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="{{ form.emergency_contact_name.id }}" class="form-label fw-bold">
+                                    {{ form.emergency_contact_name.label.text }}
+                                </label>
+                                {{ form.emergency_contact_name(class="form-control") }}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.emergency_contact_phone.id }}" class="form-label fw-bold">
+                                    {{ form.emergency_contact_phone.label.text }}
+                                </label>
+                                {{ form.emergency_contact_phone(class="form-control") }}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.emergency_contact_relationship.id }}" class="form-label fw-bold">
+                                    {{ form.emergency_contact_relationship.label.text }}
+                                </label>
+                                {{ form.emergency_contact_relationship(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <!-- Document Upload Section -->
+                        <div class="section-header mb-4 mt-5">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-file-upload me-2"></i>
+                                Document Upload
+                            </h4>
+                            <small class="text-muted">You can upload additional documents later through your private profile link</small>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.passport_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-passport me-1"></i>
+                                    {{ form.passport_file.label.text }}
+                                </label>
+                                {{ form.passport_file(class="form-control") }}
+                                <div class="form-text">PDF, JPG, JPEG, PNG files only</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.cdc_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-id-card me-1"></i>
+                                    {{ form.cdc_file.label.text }}
+                                </label>
+                                {{ form.cdc_file(class="form-control") }}
+                                <div class="form-text">PDF, JPG, JPEG, PNG files only</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="{{ form.resume_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-file-alt me-1"></i>
+                                    {{ form.resume_file.label.text }}
+                                </label>
+                                {{ form.resume_file(class="form-control") }}
+                                <div class="form-text">PDF, DOC, DOCX files only</div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.photo_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-image me-1"></i>
+                                    {{ form.photo_file.label.text }}
+                                </label>
+                                {{ form.photo_file(class="form-control") }}
+                                <div class="form-text">JPG, JPEG, PNG files only</div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.medical_certificate_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-heartbeat me-1"></i>
+                                    {{ form.medical_certificate_file.label.text }}
+                                </label>
+                                {{ form.medical_certificate_file(class="form-control") }}
+                                <div class="form-text">PDF, JPG, JPEG, PNG files only</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 mt-5">
+                            {{ form.submit(class="btn btn-navy btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Add loading state to form submission
+    document.getElementById('crewRegistrationForm').addEventListener('submit', function() {
+        const submitBtn = this.querySelector('input[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.value = 'Registering...';
+    });
+</script>
+{% endblock %}

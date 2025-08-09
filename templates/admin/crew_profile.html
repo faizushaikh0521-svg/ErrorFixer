@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}{{ crew_member.name }} - Crew Profile - Admin - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-navy mb-0">
+                    <i class="fas fa-user me-3"></i>
+                    Crew Member Profile
+                </h2>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('export_crew_csv', crew_id=crew_member.id) }}" 
+                       class="btn btn-outline-success">
+                        <i class="fas fa-download me-2"></i>
+                        Export CSV
+                    </a>
+                    <a href="{{ url_for('crew_list') }}" class="btn btn-outline-navy">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Profile Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top">
+                <div class="card-header bg-navy text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card me-2"></i>
+                        Profile Summary
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="profile-avatar bg-navy text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+                    <h4 class="mb-1">{{ crew_member.name }}</h4>
+                    <p class="text-muted mb-2">{{ crew_member.rank }}</p>
+                    <span class="badge bg-{{ crew_member.get_status_class() }} fs-6 px-3 py-2 mb-3">
+                        {{ crew_member.get_status_name() }}
+                    </span>
+                    
+                    <hr>
+                    
+                    <div class="profile-completion mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold">Profile Completion</span>
+                            <span class="small fw-bold text-{{ 'success' if crew_member.get_profile_completion_percentage() == 100 else 'warning' }}">
+                                {{ crew_member.get_profile_completion_percentage() }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-{{ 'success' if crew_member.get_profile_completion_percentage() == 100 else 'warning' }}" 
+                                 style="width: {{ crew_member.get_profile_completion_percentage() }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Status Update Form -->
+                    <form method="POST" action="{{ url_for('update_crew_status', crew_id=crew_member.id) }}">
+                        <div class="mb-3">
+                            <label for="notes" class="form-label fw-bold">Admin Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Add notes about this crew member...">{{ crew_member.admin_notes or '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="action" value="approve" 
+                                    class="btn btn-success" 
+                                    {{ 'disabled' if crew_member.status == 3 }}>
+                                <i class="fas fa-check me-2"></i>
+                                {{ 'Approved' if crew_member.status == 3 else 'Approve' }}
+                            </button>
+                            <button type="submit" name="action" value="reject" 
+                                    class="btn btn-danger"
+                                    {{ 'disabled' if crew_member.status == -1 }}>
+                                <i class="fas fa-times me-2"></i>
+                                {{ 'Rejected' if crew_member.status == -1 else 'Reject' }}
+                            </button>
+                            <button type="submit" name="action" value="flag" 
+                                    class="btn btn-warning"
+                                    {{ 'disabled' if crew_member.status == -2 }}>
+                                <i class="fas fa-flag me-2"></i>
+                                {{ 'Flagged' if crew_member.status == -2 else 'Flag for Review' }}
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <!-- Profile Link Management -->
+                    <div class="profile-link-section">
+                        <h6 class="text-navy mb-3">Private Profile Link</h6>
+                        {% if crew_member.profile_token %}
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control form-control-sm" 
+                                       readonly 
+                                       value="{{ url_for('crew_private_profile', crew_id=crew_member.id, token=crew_member.profile_token, _external=True) }}"
+                                       id="profileLink">
+                                <button class="btn btn-outline-gold btn-sm" type="button" 
+                                        onclick="copyProfileLink()">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Share this link with the crew member for document uploads</small>
+                        {% else %}
+                            <a href="{{ url_for('generate_profile_link', crew_id=crew_member.id) }}" 
+                               class="btn btn-gold btn-sm">
+                                <i class="fas fa-plus me-2"></i>
+                                Generate Profile Link
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Information -->
+        <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-sea-green text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Full Name</label>
+                            <div class="fw-bold">{{ crew_member.name }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Nationality</label>
+                            <div class="fw-bold">{{ crew_member.nationality }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Date of Birth</label>
+                            <div class="fw-bold">{{ crew_member.date_of_birth.strftime('%B %d, %Y') }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Passport Number</label>
+                            <div class="fw-bold">
+                                <code class="bg-light text-dark px-2 py-1 rounded">{{ crew_member.passport }}</code>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Mobile Number</label>
+                            <div class="fw-bold">
+                                <a href="tel:{{ crew_member.mobile_number }}" class="text-decoration-none">
+                                    <i class="fas fa-phone me-1"></i>
+                                    {{ crew_member.mobile_number }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Email</label>
+                            <div class="fw-bold">
+                                <a href="mailto:{{ crew_member.email }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    {{ crew_member.email }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Professional Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-gold text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-briefcase me-2"></i>
+                        Professional Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Rank/Position</label>
+                            <div class="fw-bold">{{ crew_member.rank }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Years of Experience</label>
+                            <div class="fw-bold">
+                                <span class="badge bg-info">{{ crew_member.years_experience }} years</span>
+                            </div>
+                        </div>
+                        {% if crew_member.last_vessel_type %}
+                        <div class="col-md-6">
+                            <label class="text-muted small">Last Vessel Type</label>
+                            <div class="fw-bold">{{ crew_member.last_vessel_type }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-6">
+                            <label class="text-muted small">Availability Date</label>
+                            <div class="fw-bold">{{ crew_member.availability_date.strftime('%B %d, %Y') }}</div>
+                        </div>
+                        {% if crew_member.available_port_city %}
+                        <div class="col-md-12">
+                            <label class="text-muted small">Available Port/City for Joining</label>
+                            <div class="fw-bold">{{ crew_member.available_port_city }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Emergency Contact -->
+            {% if crew_member.emergency_contact_name or crew_member.emergency_contact_phone %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-phone me-2"></i>
+                        Emergency Contact
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% if crew_member.emergency_contact_name %}
+                        <div class="col-md-4">
+                            <label class="text-muted small">Contact Name</label>
+                            <div class="fw-bold">{{ crew_member.emergency_contact_name }}</div>
+                        </div>
+                        {% endif %}
+                        {% if crew_member.emergency_contact_phone %}
+                        <div class="col-md-4">
+                            <label class="text-muted small">Contact Phone</label>
+                            <div class="fw-bold">
+                                <a href="tel:{{ crew_member.emergency_contact_phone }}" class="text-decoration-none">
+                                    <i class="fas fa-phone me-1"></i>
+                                    {{ crew_member.emergency_contact_phone }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if crew_member.emergency_contact_relationship %}
+                        <div class="col-md-4">
+                            <label class="text-muted small">Relationship</label>
+                            <div class="fw-bold">{{ crew_member.emergency_contact_relationship }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Document Status -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-navy text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Document Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set categories = crew_member.get_document_categories() %}
+                    
+                    {% for category_key, category in categories.items() %}
+                    <div class="document-category mb-4">
+                        <h6 class="text-navy border-bottom pb-2 mb-3">
+                            <i class="fas fa-{{ 'id-card' if category_key == 'identity' else 'heartbeat' if category_key == 'medical' else 'certificate' if category_key == 'professional' else 'file' }} me-2"></i>
+                            {{ category.name }}
+                        </h6>
+                        
+                        <div class="row g-3">
+                            {% for doc in category.documents %}
+                            <div class="col-md-6">
+                                <div class="document-item border rounded p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong>{{ doc.name }}</strong>
+                                            {% if doc.required %}
+                                                <span class="text-danger">*</span>
+                                            {% endif %}
+                                        </div>
+                                        {% if doc.uploaded %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>
+                                                {{ doc.count }} file{{ 's' if doc.count > 1 else '' }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-times me-1"></i>
+                                                Missing
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Document Files -->
+                                    {% if doc.files %}
+                                        <div class="document-files">
+                                            {% for file in doc.files %}
+                                            <div class="file-item d-flex justify-content-between align-items-center mt-2 p-2 bg-light rounded">
+                                                <div>
+                                                    <small class="fw-bold">{{ file.original_filename }}</small>
+                                                    <br>
+                                                    <small class="text-muted">{{ file.get_file_size_formatted() }} • {{ file.upload_date.strftime('%b %d, %Y') }}</small>
+                                                </div>
+                                                <a href="{{ url_for('uploaded_file', filename=file.filename) }}" 
+                                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <small class="text-muted">No files uploaded</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Application Timeline -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-timeline me-2"></i>
+                        Application Timeline
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Application Submitted</h6>
+                                <small class="text-muted">{{ crew_member.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                <p class="mb-0 mt-1">Profile created and initial registration completed.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info">
+                                <i class="fas fa-clock text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Last Updated</h6>
+                                <small class="text-muted">{{ crew_member.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                <p class="mb-0 mt-1">Most recent profile or status update.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content {
+    padding-left: 20px;
+}
+
+.sticky-top {
+    top: 100px;
+}
+
+.document-item {
+    transition: all 0.2s ease;
+}
+
+.document-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyProfileLink() {
+    const linkInput = document.getElementById('profileLink');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(linkInput.value).then(function() {
+        // Show temporary success feedback
+        const btn = event.target.closest('button');
+        const originalIcon = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline-gold');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalIcon;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-gold');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

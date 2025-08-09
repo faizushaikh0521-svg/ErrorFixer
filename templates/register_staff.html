@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Registration - Maricheck{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-sea-green text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-briefcase me-3"></i>
+                        Staff Member Registration
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-75">Join our shore-based team</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" id="staffRegistrationForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Personal Information Section -->
+                        <div class="section-header mb-4">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-user me-2"></i>
+                                Personal Information
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.full_name.id }}" class="form-label fw-bold">
+                                    {{ form.full_name.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else "")) }}
+                                {% if form.full_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.full_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.email_or_whatsapp.id }}" class="form-label fw-bold">
+                                    {{ form.email_or_whatsapp.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email_or_whatsapp(class="form-control" + (" is-invalid" if form.email_or_whatsapp.errors else "")) }}
+                                {% if form.email_or_whatsapp.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email_or_whatsapp.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.mobile_number.id }}" class="form-label fw-bold">
+                                    {{ form.mobile_number.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.mobile_number(class="form-control" + (" is-invalid" if form.mobile_number.errors else "")) }}
+                                {% if form.mobile_number.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.mobile_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.location.id }}" class="form-label fw-bold">
+                                    {{ form.location.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.location(class="form-control" + (" is-invalid" if form.location.errors else "")) }}
+                                {% if form.location.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.location.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Professional Information Section -->
+                        <div class="section-header mb-4 mt-5">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-briefcase me-2"></i>
+                                Professional Information
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.position_applying.id }}" class="form-label fw-bold">
+                                    {{ form.position_applying.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.position_applying(class="form-control" + (" is-invalid" if form.position_applying.errors else "")) }}
+                                {% if form.position_applying.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.position_applying.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.department.id }}" class="form-label fw-bold">
+                                    {{ form.department.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.department(class="form-select" + (" is-invalid" if form.department.errors else "")) }}
+                                {% if form.department.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.department.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="{{ form.years_experience.id }}" class="form-label fw-bold">
+                                    {{ form.years_experience.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.years_experience(class="form-control" + (" is-invalid" if form.years_experience.errors else "")) }}
+                                {% if form.years_experience.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.years_experience.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.availability_date.id }}" class="form-label fw-bold">
+                                    {{ form.availability_date.label.text }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.availability_date(class="form-control" + (" is-invalid" if form.availability_date.errors else "")) }}
+                                {% if form.availability_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.availability_date.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="{{ form.current_employer.id }}" class="form-label fw-bold">
+                                    {{ form.current_employer.label.text }}
+                                </label>
+                                {{ form.current_employer(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Information Section -->
+                        <div class="section-header mb-4 mt-5">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Additional Information
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.education.id }}" class="form-label fw-bold">
+                                    {{ form.education.label.text }}
+                                </label>
+                                {{ form.education(class="form-control") }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.salary_expectation.id }}" class="form-label fw-bold">
+                                    {{ form.salary_expectation.label.text }}
+                                </label>
+                                {{ form.salary_expectation(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.certifications.id }}" class="form-label fw-bold">
+                                {{ form.certifications.label.text }}
+                            </label>
+                            {{ form.certifications(class="form-control", rows="3") }}
+                            <div class="form-text">List any relevant certifications or qualifications</div>
+                        </div>
+                        
+                        <!-- Document Upload Section -->
+                        <div class="section-header mb-4 mt-5">
+                            <h4 class="text-navy border-bottom border-sea-green pb-2">
+                                <i class="fas fa-file-upload me-2"></i>
+                                Document Upload
+                            </h4>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.resume_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-file-alt me-1"></i>
+                                    {{ form.resume_file.label.text }}
+                                </label>
+                                {{ form.resume_file(class="form-control") }}
+                                <div class="form-text">PDF, DOC, DOCX files only</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.photo_file.id }}" class="form-label fw-bold">
+                                    <i class="fas fa-image me-1"></i>
+                                    {{ form.photo_file.label.text }}
+                                </label>
+                                {{ form.photo_file(class="form-control") }}
+                                <div class="form-text">JPG, JPEG, PNG files only</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 mt-5">
+                            {{ form.submit(class="btn btn-sea-green btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Add loading state to form submission
+    document.getElementById('staffRegistrationForm').addEventListener('submit', function() {
+        const submitBtn = this.querySelector('input[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.value = 'Registering...';
+    });
+</script>
+{% endblock %}
