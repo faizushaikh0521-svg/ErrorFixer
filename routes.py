@@ -332,6 +332,14 @@ def update_crew_status(crew_id):
         crew_member.status = -2
         crew_member.admin_notes = notes
         flash('Crew member flagged for review.', 'info')
+    elif action == 'screening':
+        crew_member.status = 1
+        crew_member.screening_notes = notes
+        flash('Crew member moved to screening.', 'info')
+    elif action == 'verified':
+        crew_member.status = 2
+        crew_member.admin_notes = notes
+        flash('Documents verified.', 'success')
     
     crew_member.updated_at = datetime.utcnow()
     db.session.commit()
@@ -355,6 +363,10 @@ def update_staff_status(staff_id):
         staff_member.status = -1
         staff_member.admin_notes = notes
         flash('Staff member rejected.', 'warning')
+    elif action == 'screening':
+        staff_member.status = 1
+        staff_member.screening_notes = notes
+        flash('Staff member moved to screening.', 'info')
     
     staff_member.updated_at = datetime.utcnow()
     db.session.commit()
@@ -362,52 +374,67 @@ def update_staff_status(staff_id):
     return redirect(url_for('staff_profile', staff_id=staff_id))
 
 
-@app.route('/admin/crew/<int:crew_id>/export_csv')
+@app.route('/admin/crew/export')
 @login_required
-def export_crew_csv(crew_id):
-    """Export crew member data as CSV"""
-    crew_member = CrewMember.query.get_or_404(crew_id)
-    
+def export_crew():
+    """Export crew data to CSV"""
     output = StringIO()
     writer = csv.writer(output)
     
-    # Write headers
+    # Write header
     writer.writerow([
-        'Name', 'Rank', 'Passport', 'Nationality', 'Date of Birth', 
-        'Years Experience', 'Mobile', 'Email', 'Status', 'Created At'
+        'Name', 'Rank', 'Passport', 'Nationality', 'Email', 'Mobile',
+        'Experience (Years)', 'Availability Date', 'Status', 'Created At'
     ])
     
     # Write crew data
-    writer.writerow([
-        crew_member.name,
-        crew_member.rank,
-        crew_member.passport,
-        crew_member.nationality,
-        crew_member.date_of_birth.strftime('%Y-%m-%d') if crew_member.date_of_birth else '',
-        crew_member.years_experience,
-        crew_member.mobile_number,
-        crew_member.email,
-        crew_member.get_status_name(),
-        crew_member.created_at.strftime('%Y-%m-%d %H:%M:%S')
-    ])
+    crew_members = CrewMember.query.all()
+    for crew in crew_members:
+        writer.writerow([
+            crew.name, crew.rank, crew.passport, crew.nationality, crew.email,
+            crew.mobile_number, crew.years_experience, crew.availability_date,
+            crew.get_status_name(), crew.created_at.strftime('%Y-%m-%d')
+        ])
     
+    # Create response
+    output.seek(0)
     response = make_response(output.getvalue())
-    response.headers["Content-Disposition"] = f"attachment; filename=crew_{crew_member.passport}.csv"
-    response.headers["Content-type"] = "text/csv"
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename=crew_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
     
     return response
 
 
-@app.route('/admin/crew/<int:crew_id>/generate_profile_link')
+@app.route('/admin/staff/export')
 @login_required
-def generate_profile_link(crew_id):
-    """Generate private profile link for crew member"""
-    crew_member = CrewMember.query.get_or_404(crew_id)
-    token = crew_member.generate_profile_token()
-    profile_url = url_for('crew_private_profile', crew_id=crew_id, token=token, _external=True)
+def export_staff():
+    """Export staff data to CSV"""
+    output = StringIO()
+    writer = csv.writer(output)
     
-    flash(f'Profile link generated: {profile_url}', 'success')
-    return redirect(url_for('crew_profile', crew_id=crew_id))
+    # Write header
+    writer.writerow([
+        'Full Name', 'Position', 'Department', 'Email/WhatsApp', 'Mobile',
+        'Location', 'Experience (Years)', 'Availability Date', 'Status', 'Created At'
+    ])
+    
+    # Write staff data
+    staff_members = StaffMember.query.all()
+    for staff in staff_members:
+        writer.writerow([
+            staff.full_name, staff.position_applying, staff.department,
+            staff.email_or_whatsapp, staff.mobile_number, staff.location,
+            staff.years_experience, staff.availability_date,
+            staff.get_status_name(), staff.created_at.strftime('%Y-%m-%d')
+        ])
+    
+    # Create response
+    output.seek(0)
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename=staff_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+    
+    return response
 
 
 @app.route('/uploads/<path:filename>')

@@ -18,39 +18,6 @@ class Admin(UserMixin, db.Model):
         return f'<Admin {self.username}>'
 
 
-class CrewDocument(db.Model):
-    """Document storage model for crew members - supports multiple files per category"""
-    __tablename__ = 'crew_documents'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    crew_id = db.Column(db.Integer, db.ForeignKey('crew_members.id'), nullable=False)
-    document_type = db.Column(db.String(64), nullable=False)  # passport, cdc, medical, etc.
-    document_category = db.Column(db.String(32), nullable=False)  # identity, medical, professional, other
-    filename = db.Column(db.String(255), nullable=False)
-    original_filename = db.Column(db.String(255), nullable=False)
-    file_size = db.Column(db.Integer)
-    mime_type = db.Column(db.String(100))
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationship back to crew member
-    crew_member = db.relationship('CrewMember', backref=db.backref('documents', lazy=True, cascade='all, delete-orphan'))
-    
-    def __repr__(self):
-        return f'<CrewDocument {self.document_type} for crew {self.crew_id}>'
-    
-    def get_file_size_formatted(self):
-        """Format file size in human readable format"""
-        if not self.file_size:
-            return "Unknown size"
-        
-        size = self.file_size
-        for unit in ['B', 'KB', 'MB', 'GB']:
-            if size < 1024.0:
-                return f"{size:.1f} {unit}"
-            size /= 1024.0
-        return f"{size:.1f} TB"
-
-
 class CrewMember(db.Model):
     """Crew member model for registration and tracking"""
     __tablename__ = 'crew_members'
@@ -131,7 +98,7 @@ class CrewMember(db.Model):
             -2: "dark"
         }
         return status_classes.get(self.status, "secondary")
-    
+
     def generate_profile_token(self):
         """Generate a secure token for profile access"""
         if not self.profile_token:
@@ -239,6 +206,39 @@ class CrewMember(db.Model):
     def is_profile_complete(self):
         """Check if profile is 100% complete"""
         return self.get_profile_completion_percentage() == 100
+
+
+class CrewDocument(db.Model):
+    """Document storage model for crew members - supports multiple files per category"""
+    __tablename__ = 'crew_documents'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    crew_id = db.Column(db.Integer, db.ForeignKey('crew_members.id'), nullable=False)
+    document_type = db.Column(db.String(64), nullable=False)  # passport, cdc, medical, etc.
+    document_category = db.Column(db.String(32), nullable=False)  # identity, medical, professional, other
+    filename = db.Column(db.String(255), nullable=False)
+    original_filename = db.Column(db.String(255), nullable=False)
+    file_size = db.Column(db.Integer)
+    mime_type = db.Column(db.String(100))
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship back to crew member
+    crew_member = db.relationship('CrewMember', backref=db.backref('documents', lazy=True, cascade='all, delete-orphan'))
+    
+    def __repr__(self):
+        return f'<CrewDocument {self.document_type} for crew {self.crew_id}>'
+    
+    def get_file_size_formatted(self):
+        """Format file size in human readable format"""
+        if not self.file_size:
+            return "Unknown size"
+        
+        file_size = self.file_size
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if file_size < 1024.0:
+                return f"{file_size:.1f} {unit}"
+            file_size /= 1024.0
+        return f"{file_size:.1f} TB"
 
 
 class StaffMember(db.Model):
